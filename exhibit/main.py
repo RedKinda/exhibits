@@ -21,7 +21,7 @@ async def on_ready():
     # await bot.tree.sync()
 
 
-db = DB("exhibit_data.json")
+db = DB(os.environ.get("DATAFILE_LOCATION", "exhibit_data.json"))
 
 
 class Exhibit(TypedDict):
