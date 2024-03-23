@@ -95,7 +95,7 @@ async def exhibit_autocomplete(
         or current in exhibit["author_name"]
     ]
     # only take last 25 choices
-    return choices[-25:]
+    return choices[::-1][:25]
 
 
 @discord.app_commands.user_install()
