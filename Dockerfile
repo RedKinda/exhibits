@@ -23,4 +23,4 @@ COPY poetry.lock pyproject.toml /app/
 RUN poetry install
 COPY . /app/
 
-CMD ["python", "-m", "discord_translate.main"]
+CMD ["python", "-m", "exhibit.main"]
