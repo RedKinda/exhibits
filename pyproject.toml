@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "discord-translate"
+name = "exhibit"
 version = "0.1.0"
 description = ""
 authors = ["red <red@kalab.sk>"]
