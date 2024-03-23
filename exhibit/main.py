@@ -116,10 +116,11 @@ async def exhibit(interaction, number: int, ephemeral: bool = False):
     )
 
     embed.timestamp = discord.utils.snowflake_time(exhibit["message_id"])
+    jump_url = f"https://discord.com/channels/{exhibit['guild_id'] if exhibit['guild_id'] else '@me'}/{exhibit['channel_id']}/{exhibit['message_id']}"
     embed.set_author(
         name=exhibit["author_name"],
         icon_url=exhibit["author_profile_url"],
-        url=f"https://discord.com/channels/{exhibit['guild_id'] if exhibit['guild_id'] else '@me'}/{exhibit['channel_id']}/{exhibit['message_id']}",
+        url=jump_url,
     )
 
     if exhibit.get("attachment_url"):
