@@ -86,7 +86,7 @@ async def exhibit_autocomplete(
 
     choices = [
         discord.app_commands.Choice(
-            name=f"{exhibit['id']} - {exhibit['author_name']} - {discord.utils.remove_markdown(exhibit['content'], ignore_links=False) + " "}{'<image>' if exhibit['attachment_url'] else ''}",
+            name=f"{exhibit['id']} - {exhibit['author_name']} - {discord.utils.remove_markdown(exhibit['content'], ignore_links=False) + ' '}{'<image>' if exhibit['attachment_url'] else ''}",
             value=exhibit["id"],
         )
         for exhibit in user_exhibits
