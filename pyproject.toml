@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 discord-py = { git = "https://github.com/RedKinda/discord.py", branch = "dev/userapps" }
-pytesseract = "^0.3.10"
+orjson = "^3.9.15"
 
 
 [build-system]
