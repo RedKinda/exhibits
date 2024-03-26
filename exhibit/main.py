@@ -67,6 +67,11 @@ async def save_exhibit(interaction: discord.Interaction, message: discord.Messag
         message_id=message.id,
         content=message.content,
         attachment_url=message.attachments[0].url if message.attachments else None,
+        reply_content=(
+            message.reference.resolved.content  # type: ignore
+            if message.reference and hasattr(message.reference.resolved, "content")
+            else None
+        ),
     )
 
     user_id = interaction.user.id
@@ -105,9 +110,15 @@ async def exhibit_autocomplete(
 
 def get_exhibit_embed(exhibit: Exhibit):
     jump_url = f"https://discord.com/channels/{exhibit.guild_id if exhibit.guild_id else '@me'}/{exhibit.channel_id}/{exhibit.message_id}"
+    description = ""
+    if exhibit.reply_content:
+        description = f"> {exhibit.reply_content}\n"
+
+    description += exhibit.content
+    description += f"\n[Jump to message]({jump_url})"
     embed = discord.Embed(
         title=f"Exhibit n. {exhibit.id}",
-        description=exhibit.content + f"\n[Jump to message]({jump_url})",
+        description=description,
         color=discord.Color.blurple(),
     )
 
