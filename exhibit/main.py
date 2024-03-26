@@ -137,6 +137,8 @@ async def exhibit(interaction, number: int, ephemeral: bool = False):
             "Exhibit not found.", ephemeral=ephemeral
         )
 
+    exhibit = Exhibit(**exhibit)
+
     embed = get_exhibit_embed(exhibit)
 
     await interaction.response.send_message(embed=embed, ephemeral=ephemeral)
