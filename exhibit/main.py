@@ -3,6 +3,7 @@ from typing import Optional, TypedDict
 import discord
 from discord.ext import commands
 from exhibit.db import DB
+from pydantic import BaseModel
 
 
 description = """Example bot to showcase user apps with translation."""
@@ -24,7 +25,7 @@ async def on_ready():
 db = DB(os.environ.get("DATAFILE_LOCATION", "exhibit_data.json"))
 
 
-class Exhibit(TypedDict):
+class Exhibit(BaseModel):
     id: int
     owner_id: int
     author_id: int
@@ -35,6 +36,8 @@ class Exhibit(TypedDict):
     message_id: int
     content: str
     attachment_url: Optional[str]
+
+    reply_content: Optional[str] = None
 
 
 def get_user_exhibits(user_id: int):
@@ -51,7 +54,7 @@ def get_user_exhibits(user_id: int):
 async def save_exhibit(interaction: discord.Interaction, message: discord.Message):
     """Save an exhibit for later display."""
     user_exhibits = get_user_exhibits(interaction.user.id)
-    next_exhibit_id = max([exhibit["id"] for exhibit in user_exhibits], default=0) + 1
+    next_exhibit_id = max([exhibit.id for exhibit in user_exhibits], default=0) + 1
 
     new_exhibit = Exhibit(
         id=next_exhibit_id,
@@ -86,18 +89,39 @@ async def exhibit_autocomplete(
 
     choices = [
         discord.app_commands.Choice(
-            name=f"{exhibit['id']} - {exhibit['author_name']} - {discord.utils.remove_markdown(exhibit['content'], ignore_links=False) + ' '}{'<image>' if exhibit['attachment_url'] else ''}"[
+            name=f"{exhibit.id} - {exhibit.author_name} - {discord.utils.remove_markdown(exhibit.content, ignore_links=False) + ' '}{'<image>' if exhibit.attachment_url else ''}"[
                 :95
             ],
-            value=exhibit["id"],
+            value=exhibit.id,
         )
         for exhibit in user_exhibits
-        if current in exhibit["content"]
-        or current in str(exhibit["id"])
-        or current in exhibit["author_name"]
+        if current in exhibit.content
+        or current in str(exhibit.id)
+        or current in exhibit.author_name
     ]
     # only take last 25 choices
     return choices[::-1][:25]
+
+
+def get_exhibit_embed(exhibit: Exhibit):
+    embed = discord.Embed(
+        title=f"Exhibit n. {exhibit.id}",
+        description=exhibit.content,
+        color=discord.Color.blurple(),
+    )
+
+    embed.timestamp = discord.utils.snowflake_time(exhibit.message_id)
+    jump_url = f"https://discord.com/channels/{exhibit.guild_id if exhibit.guild_id else '@me'}/{exhibit.channel_id}/{exhibit.message_id}"
+    embed.set_author(
+        name=exhibit.author_name,
+        icon_url=exhibit.author_profile_url,
+        url=jump_url,
+    )
+
+    if exhibit.attachment_url:
+        embed.set_image(url=exhibit.attachment_url)
+
+    return embed
 
 
 @discord.app_commands.user_install()
@@ -113,22 +137,7 @@ async def exhibit(interaction, number: int, ephemeral: bool = False):
             "Exhibit not found.", ephemeral=ephemeral
         )
 
-    embed = discord.Embed(
-        title=f"Exhibit n. {exhibit['id']}",
-        description=exhibit["content"],
-        color=discord.Color.blurple(),
-    )
-
-    embed.timestamp = discord.utils.snowflake_time(exhibit["message_id"])
-    jump_url = f"https://discord.com/channels/{exhibit['guild_id'] if exhibit['guild_id'] else '@me'}/{exhibit['channel_id']}/{exhibit['message_id']}"
-    embed.set_author(
-        name=exhibit["author_name"],
-        icon_url=exhibit["author_profile_url"],
-        url=jump_url,
-    )
-
-    if exhibit.get("attachment_url"):
-        embed.set_image(url=exhibit["attachment_url"])
+    embed = get_exhibit_embed(exhibit)
 
     await interaction.response.send_message(embed=embed, ephemeral=ephemeral)
 

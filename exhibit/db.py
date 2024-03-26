@@ -3,12 +3,13 @@
 from asyncio import sleep
 import asyncio
 import orjson
+from pydantic import BaseModel
 
 
 class DB:
     def __init__(self, path):
         self.path = path
-        self.data = self.load()
+        self.data: dict = self.load()
         self.save_task = None
 
     def load(self):
@@ -36,5 +37,8 @@ class DB:
             asyncio.create_task(self.delayed_save())
 
     def set(self, key, value):
+        if isinstance(value, BaseModel):
+            value = value.dict()
+
         self.data[key] = value
         self.schedule_save()

@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.11"
 discord-py = { git = "https://github.com/RedKinda/discord.py", branch = "dev/userapps" }
 orjson = "^3.9.15"
+pydantic = "^2.6.4"
 
 
 [build-system]
