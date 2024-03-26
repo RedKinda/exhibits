@@ -74,7 +74,7 @@ async def save_exhibit(interaction: discord.Interaction, message: discord.Messag
     db.set(f"exhibits-{user_id}", db.get(f"exhibits-{user_id}", []) + [next_exhibit_id])
 
     await interaction.response.send_message(
-        f"Exhibit number {next_exhibit_id} saved.", ephemeral=True
+        f"Exhibit number {next_exhibit_id} saved!", embed=get_exhibit_embed(new_exhibit)
     )
 
 
@@ -104,14 +104,14 @@ async def exhibit_autocomplete(
 
 
 def get_exhibit_embed(exhibit: Exhibit):
+    jump_url = f"https://discord.com/channels/{exhibit.guild_id if exhibit.guild_id else '@me'}/{exhibit.channel_id}/{exhibit.message_id}"
     embed = discord.Embed(
         title=f"Exhibit n. {exhibit.id}",
-        description=exhibit.content,
+        description=exhibit.content + f"\n[Jump to message]({jump_url})",
         color=discord.Color.blurple(),
     )
 
     embed.timestamp = discord.utils.snowflake_time(exhibit.message_id)
-    jump_url = f"https://discord.com/channels/{exhibit.guild_id if exhibit.guild_id else '@me'}/{exhibit.channel_id}/{exhibit.message_id}"
     embed.set_author(
         name=exhibit.author_name,
         icon_url=exhibit.author_profile_url,
